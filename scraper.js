@@ -2,17 +2,66 @@
  * Scrapes Testudo and builds a database of all the classes
  */
 
-var request = require('request');
+var rp = require('request-promise');
 var cheerio = require('cheerio');
 
-var baseUrl = "https://ntst.umd.edu/soc/";
+var baseUrl = 'https://ntst.umd.edu/soc/';
 
-request(baseUrl, function(error, response, body) {
-    if(!error) {
+// TODO: Add other semesters, logic to de-dupe
+var semesters = ['201708'];
+var depts = [];
+
+function deptToJSON(dept) {
+    var data = {};
+    var url = baseUrl + semesters[0] + '/' + dept;
+
+    rp(url).then(function(body) {
         var $ = cheerio.load(body);
 
-        $('.prefix-abbrev').each(function(index, element) {
-            console.log($(this).text());
+        data.title = $(".course-prefix-name").text().trim();
+        data.courses = [];
+
+        $('.course').each(function(element, index) {
+            var course = {};
+
+            course.id = $(this).attr('id');
+            course.title = $('.course-title', this).text();
+            course.dept = dept;
+
+            course.credits = $('.course-min-credits', this).text();
+            course.semester = semesters[0];
+
+            course.description = $('.approved-course-text', this).text();
+            if(course.description == '') {
+                course.description = $('.course-text', this).text();
+            }
+
+            var gen_eds = [];
+
+            $('.course-subcategory a', this).each(function(element, index) {
+                gen_eds.push($(this).text());
+            });
+
+            course.gen_ed = gen_eds;
+            data.courses.push(course);
         });
-    }
+    }).then(function() {
+       console.log(data);
+    });
+}
+
+
+
+/* Get all the departments */
+rp(baseUrl).then(function(body) {
+    var $ = cheerio.load(body);
+
+    $('.prefix-abbrev').each(function(index, element) {
+        depts.push($(this).text());
+    });
+
+}).then(function() {
+   for(var i = 0; i < depts.length; i++) {
+       deptToJSON(depts[i]);
+   }
 });

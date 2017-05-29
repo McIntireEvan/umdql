@@ -1,12 +1,13 @@
 {
-  "name"         : "umdql",
-  "version"      : "0.0.1",
-  "description"  : "A GraphQL API for UMD classes",
-  "main"         : "server.js",
-  "author"       : "Evan McIntire",
-  "dependencies" : {
-    "express"    : "latest",
-    "request"    : "latest",
-    "cheerio"    : "latest"
+  "name": "umdql",
+  "version": "0.0.1",
+  "description": "A GraphQL API for UMD classes",
+  "main": "server.js",
+  "author": "Evan McIntire",
+  "dependencies": {
+    "cheerio": "latest",
+    "express": "latest",
+    "request": "latest",
+    "request-promise": "latest"
   }
 }
