@@ -5,6 +5,8 @@
 var rp = require('request-promise');
 var cheerio = require('cheerio');
 
+var database = require('./database.js');
+
 var baseUrl = 'https://ntst.umd.edu/soc/';
 
 // TODO: Add other semesters, logic to de-dupe
@@ -31,6 +33,7 @@ function deptToJSON(dept) {
             course.credits = $('.course-min-credits', this).text();
             course.semester = semesters[0];
 
+            //TODO: Relationship parsing
             course.description = $('.approved-course-text', this).text();
             if(course.description == '') {
                 course.description = $('.course-text', this).text();
@@ -49,8 +52,6 @@ function deptToJSON(dept) {
        console.log(data);
     });
 }
-
-
 
 /* Get all the departments */
 rp(baseUrl).then(function(body) {

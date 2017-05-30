@@ -7,6 +7,7 @@
   "dependencies": {
     "cheerio": "latest",
     "express": "latest",
+    "pg": "^6.2.3",
     "request": "latest",
     "request-promise": "latest"
   }
