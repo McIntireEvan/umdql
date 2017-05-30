@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS courses(
+CREATE TABLE IF NOT EXISTS classes(
     course_id text PRIMARY KEY,
     course_name text,
     dept text,

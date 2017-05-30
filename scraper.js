@@ -14,14 +14,11 @@ var semesters = ['201708'];
 var depts = [];
 
 function deptToJSON(dept) {
-    var data = {};
+    var data = [];
     var url = baseUrl + semesters[0] + '/' + dept;
 
     rp(url).then(function(body) {
         var $ = cheerio.load(body);
-
-        data.title = $(".course-prefix-name").text().trim();
-        data.courses = [];
 
         $('.course').each(function(element, index) {
             var course = {};
@@ -46,10 +43,13 @@ function deptToJSON(dept) {
             });
 
             course.gen_ed = gen_eds;
-            data.courses.push(course);
+            data.push(course);
         });
     }).then(function() {
-       console.log(data);
+       for(var i = 0; i < data.length; i++) {
+            console.log("Adding [" + data[i].id + "] - " + data[i].title);
+           database.addClass(data[i]);
+       }
     });
 }
 
@@ -65,4 +65,6 @@ rp(baseUrl).then(function(body) {
    for(var i = 0; i < depts.length; i++) {
        deptToJSON(depts[i]);
    }
+}).then(function() {
+    console.log("Done!");
 });
