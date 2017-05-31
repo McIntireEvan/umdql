@@ -5,8 +5,10 @@
   "main": "server.js",
   "author": "Evan McIntire",
   "dependencies": {
+    "body-parser": "^1.17.2",
     "cheerio": "latest",
     "express": "latest",
+    "graphql": "^0.10.1",
     "pg": "^6.2.3",
     "request": "latest",
     "request-promise": "latest"
