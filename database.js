@@ -23,6 +23,20 @@ function addClass(json) {
         [json.id, json.title, json.dept, json.credits, json.gen_ed, json.description]);
 }
 
+function findClass(id, callback) {
+    var query = client.query("SELECT * FROM classes where where id=$1;", [id]);
+    query.on("row", function (row, result) {
+        result.addRow(row);
+    }).on("end", function(result) {
+        if(result.length == 0 || result["rows"][0] == null) {
+            err();
+            return;
+        }
+        callback(result ["rows"][0]);
+    });
+}
+
 module.exports = {
-    'addClass': addClass
+    'addClass': addClass,
+    'findClass': findClass
 }
