@@ -5,10 +5,10 @@ var schema = ql.buildSchema(`
     # Stores the data for a single class
     type Course {
         # The ID of the class
-        id: String
+        course_id: String
 
         # The full name of the class
-        name: String
+        course_name: String
 
         # The department code of the class
         dept_id: String
@@ -28,54 +28,22 @@ var schema = ql.buildSchema(`
         course(id: String): Course
 
         # Searches all courses based on one or more of these criteria
-        courses(dept_id: String, gen_ed: [String], credits: Int): [Course]
+        courses(dept_id: String, credits: Int): [Course]
     }
 
 `);
 
-var testData = {
-    "cmsc216": {
-        id: "cmsc216",
-        name: "C",
-        dept_id: "CMSC"
-    },
-    "cmsc250": {
-        id: "cmsc250",
-        name: "discrete",
-        dept_id: "CMSC"
-    },
-    "math240": {
-        id: "math240",
-        name: "lin alg",
-        dept_id: "MATH"
-    }
-}
-
 var root = {
     couse: function({id}) {
-        console.log("dsgsdg");
         return testData[id];
     },
 
-    courses: function({dept, gen_ed}) {
-        if(gen_ed) {
-            console.log(gen_ed);
-        } else {
-            console.log("undef");
-        }
-
-        var vals = [];
-
-        for(var key in testData) {
-            if(testData.hasOwnProperty(key)) {
-                if(testData[key].dept_id == dept) {
-                    console.log("Pushing...");
-                    vals.push(testData[key]);
-                }
-            }
-        }
-
-        return vals;
+    courses: function({dept_id, credits}) {
+        return new Promise(function(resolve, reject) {
+            database.findClasses({dept_id, credits}, function(rows) {
+                resolve(rows);
+            });
+        });
     }
 }
 

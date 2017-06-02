@@ -32,11 +32,28 @@ function findClass(id, callback) {
             err();
             return;
         }
-        callback(result ["rows"][0]);
+        callback(result["rows"][0]);
+    });
+}
+
+function findClasses({dept_id, credits}, callback) {
+    var query = client.query(`
+        SELECT * FROM classes WHERE (classes.dept = $1 OR $1 IS NULL)
+                                AND (classes.credits = $2 OR $2 IS NULL);`,
+                                [dept_id, credits]);
+    query.on("row", function (row, result) {
+        result.addRow(row);
+    }).on("end", function(result) {
+        if(result.length == 0 || result["rows"][0] == null) {
+            err();
+            return;
+        }
+        callback(result["rows"]);
     });
 }
 
 module.exports = {
     'addClass': addClass,
-    'findClass': findClass
+    'findClass': findClass,
+    'findClasses': findClasses
 }
