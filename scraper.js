@@ -13,49 +13,58 @@ var baseUrl = 'https://ntst.umd.edu/soc/';
 var semesters = ['201708'];
 var depts = [];
 
-function deptToJSON(dept) {
-    var data = [];
-    var url = baseUrl + semesters[0] + '/' + dept;
+function processDepartment(dept) {
+    return new Promise(function(resolve, reject) {
+        var data = [];
+        var url = baseUrl + semesters[0] + '/' + dept;
 
-    rp(url).then(function(body) {
-        var $ = cheerio.load(body);
+        rp(url).then(function(body) {
+            var $ = cheerio.load(body);
 
-        $('.course').each(function(element, index) {
-            var course = {};
+            $('.course').each(function(element, index) {
+                var course = {};
 
-            course.id = $(this).attr('id');
-            course.title = $('.course-title', this).text();
-            course.dept = dept;
+                course.id = $(this).attr('id');
+                course.title = $('.course-title', this).text();
+                course.dept = dept;
 
-            course.credits = $('.course-min-credits', this).text();
-            course.semester = semesters[0];
+                course.credits = $('.course-min-credits', this).text();
+                course.semester = semesters[0];
 
-            //TODO: Relationship parsing
-            course.description = $('.approved-course-text', this).text();
-            if(course.description == '') {
-                course.description = $('.course-text', this).text();
+                //TODO: Relationship parsing
+                course.description = $('.approved-course-text', this).text();
+                if(course.description == '') {
+                    course.description = $('.course-text', this).text();
+                }
+                course.grading_method = $('.grading-method').text().split(',');
+
+                var core = [];
+                $('.core-codes-group a', this).each(function(element, index) {
+                    core.push($(this).text());
+                });
+                course.core = core;
+
+                var gen_eds = [];
+                $('.course-subcategory a', this).each(function(element, index) {
+                    gen_eds.push($(this).text());
+                });
+                course.gen_ed = gen_eds;
+
+                data.push(course);
+            });
+        }).then(function() {
+            var db_calls = [];
+            for(var i = 0; i < data.length; i++) {
+                db_calls.push(new Promise(function(fufill, reject) {
+                    database.addClass(data[i], function() {
+                        fufill();
+                    });
+                }));
             }
-            course.grading_method = $('.grading-method').text().split(',');
-
-            var core = [];
-            $('.core-codes-group a', this).each(function(element, index) {
-                core.push($(this).text());
+            Promise.all(db_calls).then(function() {
+                resolve();
             });
-            course.core = core;
-
-            var gen_eds = [];
-            $('.course-subcategory a', this).each(function(element, index) {
-                gen_eds.push($(this).text());
-            });
-            course.gen_ed = gen_eds;
-
-            data.push(course);
         });
-    }).then(function() {
-       for(var i = 0; i < data.length; i++) {
-            console.log("Adding [" + data[i].id + "] - " + data[i].title);
-           database.addClass(data[i]);
-       }
     });
 }
 
@@ -68,9 +77,11 @@ rp(baseUrl).then(function(body) {
     });
 
 }).then(function() {
+    var promises = [];
    for(var i = 0; i < depts.length; i++) {
-       deptToJSON(depts[i]);
+       promises.push(processDepartment(depts[i]));
    }
-}).then(function() {
+   Promise.all(promises).then(function() {
     console.log("Done!");
+   })
 });

@@ -17,11 +17,11 @@ client.query(sql);
  * Writes a calss to the database
  * @param {Object} json
  */
-function addClass(json) {
+function addClass(json, callback) {
     client.query(
-        `INSERT INTO classes(course_id, name, dept_id, semester, credits, grading_method, core, gen_eds, description)
+        `INSERT INTO classes(course_id, name, dept_id, semester, credits, grading_method, core, gen_ed, description)
                         values ($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
-        [json.id, json.title, json.dept, json.semester, json.credits, json.grading_method, json.core, json.gen_ed, json.description]);
+        [json.id, json.title, json.dept, json.semester, json.credits, [], [], json.gen_ed, json.description], callback);
 }
 
 function findClass(id, callback) {
