@@ -19,8 +19,9 @@ client.query(sql);
  */
 function addClass(json) {
     client.query(
-        "INSERT INTO classes(course_id, course_name, dept, credits, gen_eds, description) values ($1, $2, $3, $4, $5, $6);",
-        [json.id, json.title, json.dept, json.credits, json.gen_ed, json.description]);
+        `INSERT INTO classes(course_id, name, dept_id, semester, credits, grading_method, core, gen_eds, description)
+                        values ($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
+        [json.id, json.title, json.dept, json.semester, json.credits, json.grading_method, json.core, json.gen_ed, json.description]);
 }
 
 function findClass(id, callback) {
@@ -38,7 +39,7 @@ function findClass(id, callback) {
 
 function findClasses({dept_id, credits}, callback) {
     var query = client.query(`
-        SELECT * FROM classes WHERE (classes.dept = $1 OR $1 IS NULL)
+        SELECT * FROM classes WHERE (classes.dept_id <@ $1 OR $1 IS NULL)
                                 AND (classes.credits = $2 OR $2 IS NULL);`,
                                 [dept_id, credits]);
     query.on("row", function (row, result) {

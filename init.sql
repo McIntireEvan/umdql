@@ -1,8 +1,11 @@
 CREATE TABLE IF NOT EXISTS classes(
     course_id text PRIMARY KEY,
-    course_name text,
+    name text,
     dept_id text,
+    semester text,
     credits integer,
-    gen_eds text[],
+    grading_method text[],
+    core text[],
+    gen_ed text[],
     description text
 );

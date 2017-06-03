@@ -35,14 +35,20 @@ function deptToJSON(dept) {
             if(course.description == '') {
                 course.description = $('.course-text', this).text();
             }
+            course.grading_method = $('.grading-method').text().split(',');
+
+            var core = [];
+            $('.core-codes-group a', this).each(function(element, index) {
+                core.push($(this).text());
+            });
+            course.core = core;
 
             var gen_eds = [];
-
             $('.course-subcategory a', this).each(function(element, index) {
                 gen_eds.push($(this).text());
             });
-
             course.gen_ed = gen_eds;
+
             data.push(course);
         });
     }).then(function() {
