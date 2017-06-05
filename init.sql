@@ -1,3 +1,4 @@
+DROP TABLE classes;
 CREATE TABLE IF NOT EXISTS classes(
     course_id text PRIMARY KEY,
     name text,

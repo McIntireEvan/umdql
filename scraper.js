@@ -36,7 +36,9 @@ function processDepartment(dept) {
                 if(course.description == '') {
                     course.description = $('.course-text', this).text();
                 }
-                course.grading_method = $('.grading-method').text().split(',');
+
+                var grading = $('.grading-method abbr', this).attr('title');
+                course.grading_method = grading ? grading.split(', ') : [];
 
                 var core = [];
                 $('.core-codes-group a', this).each(function(element, index) {
@@ -69,6 +71,7 @@ function processDepartment(dept) {
 }
 
 /* Get all the departments */
+console.time("Took");
 rp(baseUrl).then(function(body) {
     var $ = cheerio.load(body);
 
@@ -83,5 +86,7 @@ rp(baseUrl).then(function(body) {
    }
    Promise.all(promises).then(function() {
     console.log("Done!");
+    console.timeEnd("Took");
+    process.exit();
    })
 });
