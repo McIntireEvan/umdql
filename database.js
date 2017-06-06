@@ -25,7 +25,8 @@ function addClass(json, callback) {
 }
 
 function findClass(id, callback) {
-    var query = client.query("SELECT * FROM classes where where id=$1;", [id]);
+    console.log(id);
+    var query = client.query("SELECT * FROM classes WHERE classes.course_id=$1;", [id]);
     query.on("row", function (row, result) {
         result.addRow(row);
     }).on("end", function(result) {
@@ -33,15 +34,15 @@ function findClass(id, callback) {
             err();
             return;
         }
-        callback(result["rows"][0]);
+        callback(result["rows"]);
     });
 }
 
-function findClasses({dept_id, credits}, callback) {
+function findClasses({depts, credits}, callback) {
     var query = client.query(`
-        SELECT * FROM classes WHERE (classes.dept_id <@ $1 OR $1 IS NULL)
+        SELECT * FROM classes WHERE (classes.dept_id = ANY($1) OR $1 IS NULL)
                                 AND (classes.credits = $2 OR $2 IS NULL);`,
-                                [dept_id, credits]);
+                                [depts, credits]);
     query.on("row", function (row, result) {
         result.addRow(row);
     }).on("end", function(result) {

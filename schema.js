@@ -24,7 +24,7 @@ var schema = ql.buildSchema(`
     }
 
     type Query {
-        # Searches for an individual course by its' ID
+        # Searches for an individual course by its ID
         course(course_id: String): Course
 
         # Searches all courses based on one or more of these criteria
@@ -37,17 +37,16 @@ var schema = ql.buildSchema(`
  * Contains the handlers for the schema
  */
 var root = {
-    couse: function({course_id}) {
+    course: function({course_id}) {
         return new Promise(function(resolve, reject) {
             database.findClass(course_id, function(rows) {
                 resolve(rows[0]);
             });
         });
     },
-
     courses: function({dept_id, credits}) {
         return new Promise(function(resolve, reject) {
-            var depts = dept_id.split(',');
+            var depts = dept_id ? dept_id.split(',') : undefined;
             database.findClasses({depts, credits}, function(rows) {
                 resolve(rows);
             });
