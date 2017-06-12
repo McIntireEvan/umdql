@@ -28,7 +28,7 @@ var schema = ql.buildSchema(`
         course(course_id: String): Course
 
         # Searches all courses based on one or more of these criteria
-        courses(dept_id: String, credits: Int): [Course]
+        courses(dept_id: String, credits: Int, gen_ed: [String]): [Course]
     }
 
 `);
@@ -44,11 +44,20 @@ var root = {
             });
         });
     },
-    courses: function({dept_id, credits}) {
+    courses: function({dept_id, credits, gen_ed}) {
         return new Promise(function(resolve, reject) {
             var depts = dept_id ? dept_id.split(',') : undefined;
-            database.findClasses({depts, credits}, function(rows) {
+
+            var gen_eds = [];
+            var len = gen_ed ? gen_ed.length : 0;
+
+            for(var i = 0; i < len; i++) {
+                gen_eds.push(row = gen_ed[i].split(','));
+            }
+            database.findClasses({depts, credits, gen_eds}, function(rows) {
                 resolve(rows);
+            }, function() {
+                resolve([]);
             });
         });
     }

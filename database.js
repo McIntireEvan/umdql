@@ -31,19 +31,32 @@ function findClass(id, callback) {
         result.addRow(row);
     }).on("end", function(result) {
         if(result.length == 0 || result["rows"][0] == null) {
-            err();
             return;
         }
         callback(result["rows"]);
     });
 }
 
-function findClasses({depts, credits}, callback) {
+function findClasses({depts, credits, gen_eds}, callback, err) {
     var query = client.query(`
         SELECT * FROM classes WHERE (classes.dept_id = ANY($1) OR $1 IS NULL)
                                 AND (classes.credits = $2 OR $2 IS NULL);`,
                                 [depts, credits]);
     query.on("row", function (row, result) {
+        for(var i = 0; i < gen_eds.length; i++) {
+            var found = false;
+
+            for(var j = 0; j < row.gen_ed.length; j++) {
+                if(gen_eds[i].indexOf(row.gen_ed[j]) != -1) {
+                    found = true;
+                }
+            }
+
+            if(!found) {
+                return;
+            }
+        }
+        console.log(row.course_id)
         result.addRow(row);
     }).on("end", function(result) {
         if(result.length == 0 || result["rows"][0] == null) {
